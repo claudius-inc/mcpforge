@@ -13,8 +13,8 @@ export default function HomePage() {
           </span>
         </h1>
         <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-10">
-          Describe what you want in plain English or upload an OpenAPI spec.
-          Get a production-ready MCP server in TypeScript or Python — in seconds.
+          Describe what you want in plain English, upload an OpenAPI spec, or
+          point at any API docs page. Get a production-ready MCP server in TypeScript or Python — in seconds.
         </p>
         <div className="flex gap-4 justify-center">
           <a
@@ -38,9 +38,9 @@ export default function HomePage() {
         <div className="grid md:grid-cols-3 gap-8">
           <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
             <div className="w-10 h-10 rounded-lg bg-forge-900 text-forge-400 flex items-center justify-center text-lg font-bold mb-4">1</div>
-            <h3 className="text-lg font-semibold mb-2">Describe or Upload</h3>
+            <h3 className="text-lg font-semibold mb-2">Describe, Upload, or Crawl</h3>
             <p className="text-gray-400 text-sm">
-              Describe what your server should do in plain English, or paste your OpenAPI 3.x spec. AI handles the rest.
+              Describe what you want in English, paste an OpenAPI spec, or point at any API docs page. AI extracts the endpoints for you.
             </p>
           </div>
           <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
@@ -66,6 +66,7 @@ export default function HomePage() {
         <div className="grid md:grid-cols-2 gap-6">
           {[
             { emoji: '✨', title: 'Plain English Input', desc: 'Describe what you want and AI generates the spec. No OpenAPI knowledge needed.' },
+            { emoji: '🔗', title: 'Docs Crawler', desc: 'Point at any API documentation page. AI extracts endpoints, parameters, and auth — no manual spec writing.' },
             { emoji: '⚡', title: 'Instant Generation', desc: 'From spec to runnable MCP server in under 3 seconds.' },
             { emoji: '🔐', title: 'Auth Handling', desc: 'Automatically maps API key, Bearer token, and OAuth2 to environment variables.' },
             { emoji: '📦', title: 'Complete Package', desc: 'package.json, tsconfig, Dockerfile, .env.example, README — everything you need.' },

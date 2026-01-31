@@ -44,7 +44,7 @@ interface ServerInfo {
 
 type Target = 'typescript' | 'python';
 type Step = 'input' | 'preview' | 'generating';
-type InputMode = 'spec' | 'describe';
+type InputMode = 'spec' | 'describe' | 'crawl';
 
 const EXAMPLE_PROMPTS = [
   'A weather API that can get current weather and 5-day forecast for any city, with temperature in Celsius or Fahrenheit',
@@ -66,6 +66,10 @@ export default function GeneratePage() {
   const [error, setError] = useState<string | null>(null);
   const [parsing, setParsing] = useState(false);
   const [describing, setDescribing] = useState(false);
+  const [crawling, setCrawling] = useState(false);
+  const [docsUrl, setDocsUrl] = useState('');
+  const [crawlContext, setCrawlContext] = useState('');
+  const [crawlPageTitle, setCrawlPageTitle] = useState<string | null>(null);
   const [aiModel, setAiModel] = useState<string | null>(null);
   const [playgroundTool, setPlaygroundTool] = useState<PlaygroundTool | null>(null);
 
@@ -141,6 +145,45 @@ export default function GeneratePage() {
       setDescribing(false);
     }
   }, [description, handleParse]);
+
+  const handleCrawl = useCallback(async () => {
+    if (!docsUrl.trim()) {
+      setError('Please enter a documentation URL.');
+      return;
+    }
+
+    setCrawling(true);
+    setError(null);
+    setCrawlPageTitle(null);
+
+    try {
+      const res = await fetch('/api/crawl', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: docsUrl, additionalContext: crawlContext || undefined }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || 'Failed to crawl documentation');
+        setCrawling(false);
+        return;
+      }
+
+      // Store the generated spec and auto-parse it
+      setSpecInput(data.spec);
+      setAiModel(data.model || null);
+      setCrawlPageTitle(data.pageTitle || null);
+
+      // Now parse the generated spec
+      await handleParse(data.spec);
+    } catch (e) {
+      setError(`Network error: ${(e as Error).message}`);
+    } finally {
+      setCrawling(false);
+    }
+  }, [docsUrl, crawlContext, handleParse]);
 
   const handleGenerate = useCallback(async () => {
     setStep('generating');
@@ -233,6 +276,16 @@ export default function GeneratePage() {
               }`}
             >
               ✨ Describe in English
+            </button>
+            <button
+              onClick={() => { setInputMode('crawl'); setError(null); }}
+              className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors -mb-px ${
+                inputMode === 'crawl'
+                  ? 'border-forge-500 text-forge-300'
+                  : 'border-transparent text-gray-500 hover:text-gray-300'
+              }`}
+            >
+              🔗 Import from Docs
             </button>
           </div>
 
@@ -398,6 +451,117 @@ I want an MCP server that connects to a project management API. It should be abl
               </div>
             </div>
           )}
+
+          {/* Crawl docs mode */}
+          {inputMode === 'crawl' && (
+            <div>
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-300">API Documentation URL</span>
+                </div>
+                <input
+                  type="url"
+                  value={docsUrl}
+                  onChange={(e) => setDocsUrl(e.target.value)}
+                  placeholder="https://docs.stripe.com/api/charges"
+                  className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-sm text-gray-200 placeholder-gray-600 focus:outline-none focus:border-forge-500"
+                />
+              </div>
+
+              {/* Example URLs */}
+              <div className="mb-4">
+                <span className="text-xs text-gray-500 block mb-2">Try an example:</span>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { label: 'HTTPBin', url: 'https://httpbin.org' },
+                    { label: 'JSONPlaceholder', url: 'https://jsonplaceholder.typicode.com' },
+                    { label: 'OpenWeather API', url: 'https://openweathermap.org/current' },
+                    { label: 'PokéAPI', url: 'https://pokeapi.co/docs/v2' },
+                  ].map((example) => (
+                    <button
+                      key={example.url}
+                      onClick={() => setDocsUrl(example.url)}
+                      className="text-xs px-3 py-1.5 rounded-full bg-gray-900 border border-gray-800 text-gray-400 hover:border-forge-700 hover:text-forge-300 transition-colors"
+                    >
+                      {example.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Additional context */}
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-300">Additional Context <span className="text-gray-600">(optional)</span></span>
+                  <span className="text-xs text-gray-500">{crawlContext.length}/2000</span>
+                </div>
+                <textarea
+                  value={crawlContext}
+                  onChange={(e) => setCrawlContext(e.target.value)}
+                  placeholder="Focus on the authentication and user management endpoints only..."
+                  className="w-full h-20 bg-gray-900 border border-gray-700 rounded-lg p-3 text-sm text-gray-200 placeholder-gray-600 focus:outline-none focus:border-forge-500 resize-none"
+                  maxLength={2000}
+                />
+              </div>
+
+              <div className="flex items-center gap-6 mb-6">
+                <span className="text-sm text-gray-400">Target:</span>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="target-crawl"
+                    value="typescript"
+                    checked={target === 'typescript'}
+                    onChange={() => setTarget('typescript')}
+                    className="accent-forge-500"
+                  />
+                  <span className="text-sm">TypeScript</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="target-crawl"
+                    value="python"
+                    checked={target === 'python'}
+                    onChange={() => setTarget('python')}
+                    className="accent-forge-500"
+                  />
+                  <span className="text-sm">Python</span>
+                </label>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={handleCrawl}
+                  disabled={crawling || !docsUrl.trim()}
+                  className="bg-gradient-to-r from-forge-600 to-emerald-600 hover:from-forge-500 hover:to-emerald-500 disabled:from-gray-700 disabled:to-gray-700 disabled:text-gray-500 text-white px-6 py-2.5 rounded-lg font-medium transition-all"
+                >
+                  {crawling ? (
+                    <span className="flex items-center gap-2">
+                      <span className="animate-spin">🔗</span>
+                      Crawling docs...
+                    </span>
+                  ) : (
+                    '🔗 Extract API & Generate →'
+                  )}
+                </button>
+                {crawling && (
+                  <span className="text-xs text-gray-500">Fetching page, extracting endpoints, generating spec...</span>
+                )}
+              </div>
+
+              {/* Info box */}
+              <div className="mt-6 bg-gray-900/50 border border-gray-800/50 rounded-lg p-4">
+                <p className="text-xs text-gray-500 leading-relaxed">
+                  <strong className="text-gray-400">How it works:</strong> Point at any API documentation page — 
+                  MCPForge crawls it, extracts endpoint definitions, parameters, and authentication details, then 
+                  uses AI to generate a complete OpenAPI spec. Works best with pages that list specific endpoints.
+                  {' '}If the URL points directly to an OpenAPI/Swagger spec file, it&apos;s imported automatically.
+                  {' '}Requires <code className="text-gray-400">OPENAI_API_KEY</code> on the server.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -407,9 +571,12 @@ I want an MCP server that connects to a project management API. It should be abl
           {/* AI generation notice */}
           {aiModel && (
             <div className="bg-forge-950/50 border border-forge-800/50 rounded-lg p-3 mb-4 flex items-center gap-3">
-              <span className="text-forge-400">✨</span>
+              <span className="text-forge-400">{crawlPageTitle ? '🔗' : '✨'}</span>
               <span className="text-sm text-forge-300">
-                Spec generated by AI ({aiModel}) from your description. Review the tools below.
+                {crawlPageTitle
+                  ? <>Spec extracted from <strong>{crawlPageTitle}</strong> by AI ({aiModel}). Review the tools below.</>
+                  : <>Spec generated by AI ({aiModel}) from your description. Review the tools below.</>
+                }
               </span>
               <button
                 onClick={() => { setStep('input'); setInputMode('spec'); }}
@@ -530,7 +697,7 @@ I want an MCP server that connects to a project management API. It should be abl
               ⚡ Download {target === 'typescript' ? 'TypeScript' : 'Python'} Server
             </button>
             <button
-              onClick={() => { setStep('input'); setTools([]); setServerInfo(null); setAiModel(null); }}
+              onClick={() => { setStep('input'); setTools([]); setServerInfo(null); setAiModel(null); setCrawlPageTitle(null); }}
               className="border border-gray-700 hover:border-gray-500 text-gray-300 px-6 py-2.5 rounded-lg transition-colors"
             >
               ← Back
