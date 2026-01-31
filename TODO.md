@@ -27,13 +27,15 @@
 - [x] Multi-API composition (combine multiple APIs into one MCP server) — composer library, /api/compose endpoint, ComposeMultiple UI, per-API prefixing, 19 tests
 - [x] Version management — spec differ, compareVersions E2E, /api/version endpoint (diff + download modes), VersionManager UI component, MIGRATION.md auto-generation, backwards-compatibility detection, 23 tests
 
-## Phase 4: Monetization
-- [ ] GitHub OAuth login
-- [ ] Free tier: 2 generated servers (download only)
-- [ ] Pro tier ($29/mo): 10 hosted servers, custom domains, analytics
-- [ ] Team tier ($99/mo): unlimited servers, team management, priority support
-- [ ] Stripe billing integration
-- [ ] Usage-based pricing for hosted server compute
+## Phase 4: Monetization ✅
+- [x] GitHub OAuth login — NextAuth + GitHub provider, JWT sessions, DB user upsert
+- [x] Free tier: 10 generations/mo, 5 AI describes, 5 compositions, 1 API key, download only
+- [x] Pro tier ($29/mo): 100 gens, 50 describes, 50 compositions, 10 hosted servers, analytics, custom domains, version history
+- [x] Team tier ($99/mo): unlimited everything, team management, priority support, 20 API keys
+- [x] Stripe billing integration — checkout, webhook (subscription lifecycle), customer portal, cancel endpoint
+- [x] Interactive billing page — upgrade/downgrade buttons, success/cancel banners, subscription management
+- [x] Usage-based compute pricing — per-server uptime tracking, included minutes (Pro 10k, Team 100k), overage at $0.005/min
+- [x] 33 billing tests (tiers, limits, features, compute pricing, schema validation)
 
 ## Phase 5: Community & Growth
 - [ ] Public MCP server registry (discover + one-click deploy community servers)
