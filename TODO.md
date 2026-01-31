@@ -38,8 +38,8 @@
 - [x] 33 billing tests (tiers, limits, features, compute pricing, schema validation)
 
 ## Phase 5: Community & Growth
-- [ ] Public MCP server registry (discover + one-click deploy community servers)
-- [ ] "Fork" existing servers (customize community servers)
-- [ ] GitHub integration (commit generated servers to repo)
-- [ ] CLI tool: `mcpforge generate openapi.yaml` (local generation)
-- [ ] VS Code extension
+- [x] Public MCP server registry (discover + one-click deploy community servers) — browse/search UI with categories/tags/sorting/pagination, publish API, listing detail page with download/Claude config
+- [x] "Fork" existing servers (customize community servers) — fork API + UI button, creates new listing linked to source
+- [x] GitHub integration (commit generated servers to repo) — /api/github/push endpoint, creates/pushes repos using user's OAuth token
+- [x] CLI tool: `mcpforge generate openapi.yaml` (local generation) — full CLI with generate/describe/search/info commands, local + API fallback
+- [x] VS Code extension — generate from spec, describe, registry search, CodeLens for OpenAPI files

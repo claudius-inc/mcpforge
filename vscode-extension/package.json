@@ -1,0 +1,157 @@
+{
+  "name": "mcpforge",
+  "displayName": "MCPForge — MCP Server Generator",
+  "description": "Generate MCP servers from OpenAPI specs, plain English, or API docs. Browse the community registry.",
+  "version": "0.1.0",
+  "publisher": "mcpforge",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "Snippets",
+    "Programming Languages"
+  ],
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "openapi",
+    "swagger",
+    "ai",
+    "claude",
+    "api"
+  ],
+  "icon": "icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mcpforge/mcpforge-vscode"
+  },
+  "activationEvents": [
+    "onLanguage:json",
+    "onLanguage:yaml",
+    "onLanguage:yml"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "mcpforge.generateFromFile",
+        "title": "MCPForge: Generate MCP Server from OpenAPI Spec",
+        "icon": "$(zap)"
+      },
+      {
+        "command": "mcpforge.generateFromClipboard",
+        "title": "MCPForge: Generate from Clipboard Spec"
+      },
+      {
+        "command": "mcpforge.describe",
+        "title": "MCPForge: Generate from Description",
+        "icon": "$(sparkle)"
+      },
+      {
+        "command": "mcpforge.searchRegistry",
+        "title": "MCPForge: Search Registry",
+        "icon": "$(search)"
+      },
+      {
+        "command": "mcpforge.setApiUrl",
+        "title": "MCPForge: Set API URL"
+      },
+      {
+        "command": "mcpforge.registryRefresh",
+        "title": "Refresh",
+        "icon": "$(refresh)"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "mcpforge",
+          "title": "MCPForge",
+          "icon": "$(zap)"
+        }
+      ]
+    },
+    "views": {
+      "mcpforge": [
+        {
+          "id": "mcpforge.registry",
+          "name": "Registry"
+        },
+        {
+          "id": "mcpforge.recent",
+          "name": "Recent Generations"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "mcpforge.registryRefresh",
+          "when": "view == mcpforge.registry",
+          "group": "navigation"
+        },
+        {
+          "command": "mcpforge.searchRegistry",
+          "when": "view == mcpforge.registry",
+          "group": "navigation"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "mcpforge.generateFromFile",
+          "when": "resourceExtname == .yaml || resourceExtname == .yml || resourceExtname == .json",
+          "group": "mcpforge"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "mcpforge.generateFromFile",
+          "when": "resourceExtname == .yaml || resourceExtname == .yml || resourceExtname == .json",
+          "group": "mcpforge"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "MCPForge",
+      "properties": {
+        "mcpforge.apiUrl": {
+          "type": "string",
+          "default": "https://mcpforge.com",
+          "description": "MCPForge API base URL"
+        },
+        "mcpforge.defaultLanguage": {
+          "type": "string",
+          "default": "typescript",
+          "enum": ["typescript", "python"],
+          "description": "Default target language for generated servers"
+        },
+        "mcpforge.autoDetectSpecs": {
+          "type": "boolean",
+          "default": true,
+          "description": "Auto-detect OpenAPI specs and show CodeLens generate action"
+        },
+        "mcpforge.outputDirectory": {
+          "type": "string",
+          "default": "./mcp-server",
+          "description": "Default output directory for generated servers"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "node esbuild.config.js",
+    "watch": "node esbuild.config.js --watch",
+    "lint": "eslint src",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^2.22.0",
+    "esbuild": "^0.20.0",
+    "typescript": "^5.3.0"
+  }
+}

@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "description": "Turn any API into an MCP server. Upload OpenAPI spec → get a production-ready MCP server.",
+  "bin": {
+    "mcpforge": "./cli/mcpforge.ts"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
