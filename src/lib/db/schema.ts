@@ -165,4 +165,58 @@ CREATE INDEX IF NOT EXISTS idx_server_versions_server ON server_versions(server_
 CREATE INDEX IF NOT EXISTS idx_compute_usage_user ON compute_usage(user_id);
 CREATE INDEX IF NOT EXISTS idx_compute_usage_server ON compute_usage(server_id);
 CREATE INDEX IF NOT EXISTS idx_compute_usage_period ON compute_usage(start_time, end_time);
+
+-- Registry: published MCP server listings (community marketplace)
+CREATE TABLE IF NOT EXISTS registry_listings (
+  id TEXT PRIMARY KEY,
+  server_id TEXT REFERENCES servers(id) ON DELETE SET NULL,
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  description TEXT NOT NULL,
+  readme TEXT,
+  categories TEXT NOT NULL DEFAULT '[]',
+  tags TEXT NOT NULL DEFAULT '[]',
+  api_source_url TEXT,
+  spec_snapshot TEXT NOT NULL,
+  language TEXT NOT NULL DEFAULT 'typescript',
+  tool_count INTEGER DEFAULT 0,
+  tool_names TEXT NOT NULL DEFAULT '[]',
+  stars_count INTEGER NOT NULL DEFAULT 0,
+  forks_count INTEGER NOT NULL DEFAULT 0,
+  installs_count INTEGER NOT NULL DEFAULT 0,
+  featured INTEGER NOT NULL DEFAULT 0,
+  verified INTEGER NOT NULL DEFAULT 0,
+  status TEXT NOT NULL DEFAULT 'published',
+  version TEXT NOT NULL DEFAULT '1.0.0',
+  github_repo TEXT,
+  published_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- Registry stars (user bookmarks/likes)
+CREATE TABLE IF NOT EXISTS registry_stars (
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  listing_id TEXT NOT NULL REFERENCES registry_listings(id) ON DELETE CASCADE,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (user_id, listing_id)
+);
+
+-- Registry forks (track who forked what)
+CREATE TABLE IF NOT EXISTS registry_forks (
+  id TEXT PRIMARY KEY,
+  source_listing_id TEXT NOT NULL REFERENCES registry_listings(id) ON DELETE CASCADE,
+  forked_by_user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  forked_server_id TEXT REFERENCES servers(id) ON DELETE SET NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_registry_user ON registry_listings(user_id);
+CREATE INDEX IF NOT EXISTS idx_registry_status ON registry_listings(status);
+CREATE INDEX IF NOT EXISTS idx_registry_featured ON registry_listings(featured);
+CREATE INDEX IF NOT EXISTS idx_registry_stars ON registry_listings(stars_count);
+CREATE INDEX IF NOT EXISTS idx_registry_published ON registry_listings(published_at);
+CREATE INDEX IF NOT EXISTS idx_registry_categories ON registry_listings(categories);
+CREATE INDEX IF NOT EXISTS idx_registry_stars_listing ON registry_stars(listing_id);
+CREATE INDEX IF NOT EXISTS idx_registry_forks_source ON registry_forks(source_listing_id);
+CREATE INDEX IF NOT EXISTS idx_registry_forks_user ON registry_forks(forked_by_user_id);
 `;

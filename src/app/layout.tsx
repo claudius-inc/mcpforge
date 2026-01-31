@@ -22,6 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </a>
               <div className="flex items-center gap-6 text-sm">
                 <a href="/generate" className="text-gray-400 hover:text-white transition-colors">Generate</a>
+                <a href="/registry" className="text-gray-400 hover:text-white transition-colors">Registry</a>
                 <a href="/pricing" className="text-gray-400 hover:text-white transition-colors">Pricing</a>
                 <a href="/dashboard" className="text-gray-400 hover:text-white transition-colors">Dashboard</a>
                 <AuthButton />

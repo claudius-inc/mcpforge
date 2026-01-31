@@ -74,6 +74,8 @@ export default function HomePage() {
             { emoji: '🔄', title: 'Version Management', desc: 'API updated? Diff old vs. new spec, see what changed, and download an updated server with migration guide.' },
             { emoji: '🐍', title: 'TypeScript + Python', desc: 'Choose your target. Both use official MCP SDKs and follow best practices.' },
             { emoji: '🎯', title: 'Smart Tool Naming', desc: 'Generates clear, descriptive tool names from operationIds or path patterns.' },
+            { emoji: '🌐', title: 'Community Registry', desc: 'Discover, star, and fork community MCP servers. Publish your own to help others.' },
+            { emoji: '💻', title: 'CLI Tool', desc: 'Generate servers from your terminal. mcpforge generate, describe, or search — no browser needed.' },
             { emoji: '🔓', title: 'Open Source', desc: 'MIT licensed. Fork it, self-host it, extend it. No vendor lock-in.' },
           ].map(({ emoji, title, desc }) => (
             <div key={title} className="flex gap-4 p-4 rounded-xl bg-gray-900/50 border border-gray-800/50">
@@ -87,16 +89,77 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Community Registry */}
+      <section className="py-16 border-t border-gray-800">
+        <h2 className="text-3xl font-bold text-center mb-4">Community Registry</h2>
+        <p className="text-gray-400 text-center mb-10 max-w-2xl mx-auto">
+          Browse community-built MCP servers. Star your favorites, fork and customize, or deploy with one click.
+        </p>
+        <div className="grid md:grid-cols-3 gap-6 mb-8">
+          {[
+            { emoji: '🌐', title: 'Discover', desc: 'Browse hundreds of community MCP servers across 12 categories. Find the perfect tool for your AI agent.' },
+            { emoji: '🍴', title: 'Fork & Customize', desc: 'Found something close? Fork it, tweak the spec, and generate your own version in seconds.' },
+            { emoji: '🚀', title: 'Publish & Share', desc: 'Built something useful? Publish to the registry. Earn stars and help the community grow.' },
+          ].map(({ emoji, title, desc }) => (
+            <div key={title} className="bg-gray-900 rounded-xl p-6 border border-gray-800 text-center">
+              <div className="text-3xl mb-3">{emoji}</div>
+              <h3 className="text-lg font-semibold mb-2">{title}</h3>
+              <p className="text-gray-400 text-sm">{desc}</p>
+            </div>
+          ))}
+        </div>
+        <div className="text-center">
+          <a
+            href="/registry"
+            className="bg-gray-800 hover:bg-gray-700 text-white px-8 py-3 rounded-lg font-medium text-lg transition-colors inline-block border border-gray-700"
+          >
+            Browse Registry →
+          </a>
+        </div>
+      </section>
+
+      {/* CLI */}
+      <section className="py-16 border-t border-gray-800">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div>
+            <h2 className="text-3xl font-bold mb-4">CLI for Power Users</h2>
+            <p className="text-gray-400 mb-6">
+              Generate MCP servers directly from your terminal. Pipe in specs, describe what you want, or search the registry — all without leaving the command line.
+            </p>
+            <div className="space-y-2 text-sm text-gray-400">
+              <p><code className="text-forge-400">mcpforge generate openapi.yaml</code></p>
+              <p><code className="text-forge-400">mcpforge describe &quot;weather API with forecasts&quot;</code></p>
+              <p><code className="text-forge-400">mcpforge search &quot;github&quot;</code></p>
+            </div>
+          </div>
+          <div className="bg-gray-900 rounded-xl p-5 border border-gray-800 font-mono text-sm">
+            <div className="text-gray-500 mb-2">$ npm install -g mcpforge</div>
+            <div className="text-gray-500 mb-2">$ mcpforge generate stripe-api.yaml -l typescript</div>
+            <div className="text-green-400 mb-1">⚡ Generating TypeScript MCP server...</div>
+            <div className="text-green-400 mb-1">✅ Generated 6 files in ./mcp-server/</div>
+            <div className="text-green-400">   24 MCP tools created</div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="py-20 text-center border-t border-gray-800">
         <h2 className="text-3xl font-bold mb-4">Ready to forge your MCP server?</h2>
         <p className="text-gray-400 mb-8">No sign-up required. Paste your spec, get your server.</p>
-        <a
-          href="/generate"
-          className="bg-forge-600 hover:bg-forge-500 text-white px-8 py-3 rounded-lg font-medium text-lg transition-colors inline-block"
-        >
-          Start Generating →
-        </a>
+        <div className="flex gap-4 justify-center flex-wrap">
+          <a
+            href="/generate"
+            className="bg-forge-600 hover:bg-forge-500 text-white px-8 py-3 rounded-lg font-medium text-lg transition-colors inline-block"
+          >
+            Start Generating →
+          </a>
+          <a
+            href="/registry"
+            className="border border-gray-700 hover:border-gray-500 text-gray-300 px-8 py-3 rounded-lg font-medium text-lg transition-colors inline-block"
+          >
+            Browse Registry →
+          </a>
+        </div>
       </section>
 
       {/* Footer */}
