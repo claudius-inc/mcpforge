@@ -11,13 +11,14 @@
 - [x] Basic web UI: paste/upload OpenAPI spec → preview generated tools → download
 - [x] Test suite: 86 tests (parser 18, mapper 20, generator 37, e2e+zip 11). All green.
 
-## Phase 2: Hosted MCP Servers
-- [ ] Server deployment pipeline (containerized MCP servers on Fly.io or Railway)
-- [ ] Server management dashboard (start/stop/logs/config)
-- [ ] Environment variable management (API keys, secrets)
-- [ ] Health monitoring + auto-restart
-- [ ] Custom MCP server URLs (slug.mcpforge.dev)
-- [ ] Usage analytics (tool calls, latency, error rates)
+## Phase 2: Hosted MCP Servers ✅
+- [x] Server deployment pipeline — DeploymentProvider abstraction (Docker local, Fly.io/Railway stubs), process-based server management, TS+Python scaffolding
+- [x] Server management dashboard — list page with status badges, detail page with 6-tab ServerManager (overview, logs, env, analytics, versions, settings)
+- [x] Environment variable management — secure CRUD API, UPPER_SNAKE_CASE validation, hot-reload on change, secret masking in API responses
+- [x] Health monitoring + auto-restart — health check interface, auto-restart on crash with 5s backoff, status tracking in DB
+- [x] Custom MCP server URLs (slug-based: `{name}-{userId}` format, unique enforcement)
+- [x] Usage analytics — tool call tracking, success/error rates, latency stats, top tools, daily breakdown, per-period filtering (1d/7d/30d)
+- [ ] Cloud deployment (Fly.io/Railway) — needs external accounts, Docker provider works locally
 
 ## Phase 3: Smart Features
 - [x] Tool testing playground (call tools directly in browser) — server-side proxy, dynamic forms, cURL preview, response viewer
