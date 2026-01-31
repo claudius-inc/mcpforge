@@ -20,10 +20,10 @@
 - [ ] Usage analytics (tool calls, latency, error rates)
 
 ## Phase 3: Smart Features
-- [ ] Plain English → MCP server (describe what you want, AI generates the spec + server)
+- [x] Tool testing playground (call tools directly in browser) — server-side proxy, dynamic forms, cURL preview, response viewer
+- [x] Plain English → MCP server (describe what you want, AI generates the spec + server)
 - [ ] API documentation crawler (point at docs URL → auto-extract endpoints → generate)
 - [ ] Multi-API composition (combine multiple APIs into one MCP server)
-- [ ] Tool testing playground (call tools directly in browser)
 - [ ] Version management (update API spec → regenerate server, zero-downtime)
 
 ## Phase 4: Monetization

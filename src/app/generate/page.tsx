@@ -44,20 +44,34 @@ interface ServerInfo {
 
 type Target = 'typescript' | 'python';
 type Step = 'input' | 'preview' | 'generating';
+type InputMode = 'spec' | 'describe';
+
+const EXAMPLE_PROMPTS = [
+  'A weather API that can get current weather and 5-day forecast for any city, with temperature in Celsius or Fahrenheit',
+  'GitHub-like API for managing repositories, issues, and pull requests with Bearer token auth',
+  'A Stripe-like payment API with customers, charges, subscriptions, and webhook management',
+  'A simple CRUD API for a todo list app with categories, due dates, and priority levels',
+  'Slack-like messaging API with channels, messages, reactions, and file uploads',
+];
 
 export default function GeneratePage() {
   const [step, setStep] = useState<Step>('input');
+  const [inputMode, setInputMode] = useState<InputMode>('spec');
   const [specInput, setSpecInput] = useState('');
+  const [description, setDescription] = useState('');
   const [target, setTarget] = useState<Target>('typescript');
   const [tools, setTools] = useState<ParsedTool[]>([]);
   const [serverInfo, setServerInfo] = useState<ServerInfo | null>(null);
   const [warnings, setWarnings] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [parsing, setParsing] = useState(false);
+  const [describing, setDescribing] = useState(false);
+  const [aiModel, setAiModel] = useState<string | null>(null);
   const [playgroundTool, setPlaygroundTool] = useState<PlaygroundTool | null>(null);
 
-  const handleParse = useCallback(async () => {
-    if (!specInput.trim()) {
+  const handleParse = useCallback(async (specToParse?: string) => {
+    const spec = specToParse || specInput;
+    if (!spec.trim()) {
       setError('Please paste or upload an OpenAPI spec.');
       return;
     }
@@ -69,7 +83,7 @@ export default function GeneratePage() {
       const res = await fetch('/api/parse', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ spec: specInput }),
+        body: JSON.stringify({ spec }),
       });
 
       const data = await res.json();
@@ -90,6 +104,43 @@ export default function GeneratePage() {
       setParsing(false);
     }
   }, [specInput]);
+
+  const handleDescribe = useCallback(async () => {
+    if (!description.trim()) {
+      setError('Please describe what your MCP server should do.');
+      return;
+    }
+
+    setDescribing(true);
+    setError(null);
+
+    try {
+      const res = await fetch('/api/describe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ description }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || 'Failed to generate spec');
+        setDescribing(false);
+        return;
+      }
+
+      // Store the generated spec and auto-parse it
+      setSpecInput(data.spec);
+      setAiModel(data.model || null);
+
+      // Now parse the generated spec
+      await handleParse(data.spec);
+    } catch (e) {
+      setError(`Network error: ${(e as Error).message}`);
+    } finally {
+      setDescribing(false);
+    }
+  }, [description, handleParse]);
 
   const handleGenerate = useCallback(async () => {
     setStep('generating');
@@ -148,7 +199,9 @@ export default function GeneratePage() {
   return (
     <div className="max-w-5xl mx-auto px-4 py-12">
       <h1 className="text-3xl font-bold mb-2">Generate MCP Server</h1>
-      <p className="text-gray-400 mb-8">Paste your OpenAPI 3.x spec below or upload a file.</p>
+      <p className="text-gray-400 mb-8">
+        Upload an OpenAPI spec or describe what you want in plain English.
+      </p>
 
       {error && (
         <div className="bg-red-950 border border-red-800 rounded-lg p-4 mb-6 text-red-300 text-sm">
@@ -159,72 +212,214 @@ export default function GeneratePage() {
       {/* Step 1: Input */}
       {step === 'input' && (
         <div>
-          <div className="flex gap-4 mb-4">
-            <label className="flex-1">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-300">OpenAPI Spec</span>
-                <label className="text-sm text-forge-400 hover:text-forge-300 cursor-pointer">
-                  Upload file
-                  <input
-                    type="file"
-                    accept=".json,.yaml,.yml"
-                    className="hidden"
-                    onChange={handleFileUpload}
-                  />
-                </label>
-              </div>
-              <textarea
-                value={specInput}
-                onChange={(e) => setSpecInput(e.target.value)}
-                placeholder={`{
+          {/* Tab switcher */}
+          <div className="flex border-b border-gray-800 mb-6">
+            <button
+              onClick={() => { setInputMode('spec'); setError(null); }}
+              className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors -mb-px ${
+                inputMode === 'spec'
+                  ? 'border-forge-500 text-forge-300'
+                  : 'border-transparent text-gray-500 hover:text-gray-300'
+              }`}
+            >
+              📄 Upload Spec
+            </button>
+            <button
+              onClick={() => { setInputMode('describe'); setError(null); }}
+              className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors -mb-px ${
+                inputMode === 'describe'
+                  ? 'border-forge-500 text-forge-300'
+                  : 'border-transparent text-gray-500 hover:text-gray-300'
+              }`}
+            >
+              ✨ Describe in English
+            </button>
+          </div>
+
+          {/* Spec upload mode */}
+          {inputMode === 'spec' && (
+            <div>
+              <div className="flex gap-4 mb-4">
+                <label className="flex-1">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-300">OpenAPI Spec</span>
+                    <label className="text-sm text-forge-400 hover:text-forge-300 cursor-pointer">
+                      Upload file
+                      <input
+                        type="file"
+                        accept=".json,.yaml,.yml"
+                        className="hidden"
+                        onChange={handleFileUpload}
+                      />
+                    </label>
+                  </div>
+                  <textarea
+                    value={specInput}
+                    onChange={(e) => setSpecInput(e.target.value)}
+                    placeholder={`{
   "openapi": "3.0.3",
   "info": { "title": "My API", "version": "1.0.0" },
   "paths": { ... }
 }`}
-                className="w-full h-80 bg-gray-900 border border-gray-700 rounded-lg p-4 text-sm font-mono text-gray-200 placeholder-gray-600 focus:outline-none focus:border-forge-500 resize-none"
-              />
-            </label>
-          </div>
+                    className="w-full h-80 bg-gray-900 border border-gray-700 rounded-lg p-4 text-sm font-mono text-gray-200 placeholder-gray-600 focus:outline-none focus:border-forge-500 resize-none"
+                  />
+                </label>
+              </div>
 
-          <div className="flex items-center gap-6 mb-6">
-            <span className="text-sm text-gray-400">Target:</span>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="radio"
-                name="target"
-                value="typescript"
-                checked={target === 'typescript'}
-                onChange={() => setTarget('typescript')}
-                className="accent-forge-500"
-              />
-              <span className="text-sm">TypeScript</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="radio"
-                name="target"
-                value="python"
-                checked={target === 'python'}
-                onChange={() => setTarget('python')}
-                className="accent-forge-500"
-              />
-              <span className="text-sm">Python</span>
-            </label>
-          </div>
+              <div className="flex items-center gap-6 mb-6">
+                <span className="text-sm text-gray-400">Target:</span>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="target"
+                    value="typescript"
+                    checked={target === 'typescript'}
+                    onChange={() => setTarget('typescript')}
+                    className="accent-forge-500"
+                  />
+                  <span className="text-sm">TypeScript</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="target"
+                    value="python"
+                    checked={target === 'python'}
+                    onChange={() => setTarget('python')}
+                    className="accent-forge-500"
+                  />
+                  <span className="text-sm">Python</span>
+                </label>
+              </div>
 
-          <button
-            onClick={handleParse}
-            disabled={parsing || !specInput.trim()}
-            className="bg-forge-600 hover:bg-forge-500 disabled:bg-gray-700 disabled:text-gray-500 text-white px-6 py-2.5 rounded-lg font-medium transition-colors"
-          >
-            {parsing ? 'Parsing...' : 'Parse Spec →'}
-          </button>
+              <button
+                onClick={() => handleParse()}
+                disabled={parsing || !specInput.trim()}
+                className="bg-forge-600 hover:bg-forge-500 disabled:bg-gray-700 disabled:text-gray-500 text-white px-6 py-2.5 rounded-lg font-medium transition-colors"
+              >
+                {parsing ? 'Parsing...' : 'Parse Spec →'}
+              </button>
+            </div>
+          )}
+
+          {/* Describe mode */}
+          {inputMode === 'describe' && (
+            <div>
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-300">Describe your MCP server</span>
+                  <span className="text-xs text-gray-500">{description.length}/5000</span>
+                </div>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Describe what your MCP server should do in plain English. For example:
+
+I want an MCP server that connects to a project management API. It should be able to:
+- List, create, and update projects
+- Manage tasks within projects (create, assign, set priority, mark complete)
+- Add comments to tasks
+- Search across all tasks with filters for status, assignee, and due date
+- Use API key authentication"
+                  className="w-full h-52 bg-gray-900 border border-gray-700 rounded-lg p-4 text-sm text-gray-200 placeholder-gray-600 focus:outline-none focus:border-forge-500 resize-none"
+                />
+              </div>
+
+              {/* Example prompts */}
+              <div className="mb-6">
+                <span className="text-xs text-gray-500 block mb-2">Try an example:</span>
+                <div className="flex flex-wrap gap-2">
+                  {EXAMPLE_PROMPTS.map((prompt, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setDescription(prompt)}
+                      className="text-xs px-3 py-1.5 rounded-full bg-gray-900 border border-gray-800 text-gray-400 hover:border-forge-700 hover:text-forge-300 transition-colors truncate max-w-[280px]"
+                    >
+                      {prompt}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-6 mb-6">
+                <span className="text-sm text-gray-400">Target:</span>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="target-describe"
+                    value="typescript"
+                    checked={target === 'typescript'}
+                    onChange={() => setTarget('typescript')}
+                    className="accent-forge-500"
+                  />
+                  <span className="text-sm">TypeScript</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="target-describe"
+                    value="python"
+                    checked={target === 'python'}
+                    onChange={() => setTarget('python')}
+                    className="accent-forge-500"
+                  />
+                  <span className="text-sm">Python</span>
+                </label>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={handleDescribe}
+                  disabled={describing || !description.trim()}
+                  className="bg-gradient-to-r from-forge-600 to-blue-600 hover:from-forge-500 hover:to-blue-500 disabled:from-gray-700 disabled:to-gray-700 disabled:text-gray-500 text-white px-6 py-2.5 rounded-lg font-medium transition-all"
+                >
+                  {describing ? (
+                    <span className="flex items-center gap-2">
+                      <span className="animate-spin">✦</span>
+                      Generating spec...
+                    </span>
+                  ) : (
+                    '✨ Generate MCP Server →'
+                  )}
+                </button>
+                {describing && (
+                  <span className="text-xs text-gray-500">AI is writing your OpenAPI spec...</span>
+                )}
+              </div>
+
+              {/* Info box */}
+              <div className="mt-6 bg-gray-900/50 border border-gray-800/50 rounded-lg p-4">
+                <p className="text-xs text-gray-500 leading-relaxed">
+                  <strong className="text-gray-400">How it works:</strong> Describe what your MCP server should do 
+                  and AI will generate a complete OpenAPI spec, which is then converted into a production-ready 
+                  MCP server. You can review and customize the generated tools before downloading.
+                  {' '}Requires <code className="text-gray-400">OPENAI_API_KEY</code> on the server.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
       {/* Step 2: Preview */}
       {step === 'preview' && serverInfo && (
         <div>
+          {/* AI generation notice */}
+          {aiModel && (
+            <div className="bg-forge-950/50 border border-forge-800/50 rounded-lg p-3 mb-4 flex items-center gap-3">
+              <span className="text-forge-400">✨</span>
+              <span className="text-sm text-forge-300">
+                Spec generated by AI ({aiModel}) from your description. Review the tools below.
+              </span>
+              <button
+                onClick={() => { setStep('input'); setInputMode('spec'); }}
+                className="ml-auto text-xs text-forge-400 hover:text-forge-300 underline"
+              >
+                Edit raw spec
+              </button>
+            </div>
+          )}
+
           {/* Server info card */}
           <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 mb-6">
             <div className="flex items-start justify-between mb-4">
@@ -335,7 +530,7 @@ export default function GeneratePage() {
               ⚡ Download {target === 'typescript' ? 'TypeScript' : 'Python'} Server
             </button>
             <button
-              onClick={() => { setStep('input'); setTools([]); setServerInfo(null); }}
+              onClick={() => { setStep('input'); setTools([]); setServerInfo(null); setAiModel(null); }}
               className="border border-gray-700 hover:border-gray-500 text-gray-300 px-6 py-2.5 rounded-lg transition-colors"
             >
               ← Back
