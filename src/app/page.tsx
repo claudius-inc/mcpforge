@@ -2,33 +2,53 @@ export default function HomePage() {
   return (
     <div className="max-w-6xl mx-auto px-4">
       {/* Hero */}
-      <section className="py-24 text-center">
-        <div className="inline-block px-3 py-1 rounded-full bg-forge-950 border border-forge-800 text-forge-300 text-sm mb-6">
-          Open Source · Free to Use
-        </div>
-        <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-6">
-          Turn any API into an{' '}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-forge-400 to-blue-400">
-            MCP Server
-          </span>
-        </h1>
-        <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-10">
-          Describe what you want in plain English, upload an OpenAPI spec, crawl any API docs page, or 
-          compose multiple APIs into one. Get a production-ready MCP server in TypeScript or Python — in seconds.
-        </p>
-        <div className="flex gap-4 justify-center">
-          <a
-            href="/generate"
-            className="bg-forge-600 hover:bg-forge-500 text-white px-8 py-3 rounded-lg font-medium text-lg transition-colors"
-          >
-            Generate Now →
-          </a>
-          <a
-            href="https://github.com/Claudius-Inc/mcpforge"
-            className="border border-gray-700 hover:border-gray-500 text-gray-300 px-8 py-3 rounded-lg font-medium text-lg transition-colors"
-          >
-            View Source
-          </a>
+      <section className="py-24 text-center relative">
+        {/* Subtle gradient glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-forge-600/10 rounded-full blur-3xl pointer-events-none" />
+        
+        <div className="relative">
+          <div className="inline-block px-3 py-1 rounded-full bg-forge-950 border border-forge-800 text-forge-300 text-sm mb-6">
+            Open Source · Free to Use · 310+ Tests
+          </div>
+          <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6">
+            Turn any API into an{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-forge-400 to-blue-400">
+              MCP Server
+            </span>
+          </h1>
+          <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-10">
+            Describe what you want in plain English, upload an OpenAPI spec, crawl any API docs page, or 
+            compose multiple APIs into one. Get a production-ready MCP server in TypeScript or Python — in seconds.
+          </p>
+          <div className="flex gap-4 justify-center mb-16">
+            <a
+              href="/generate"
+              className="bg-forge-600 hover:bg-forge-500 text-white px-8 py-3 rounded-lg font-medium text-lg transition-all hover:shadow-lg hover:shadow-forge-600/20"
+            >
+              Generate Now →
+            </a>
+            <a
+              href="https://github.com/Claudius-Inc/mcpforge"
+              className="border border-gray-700 hover:border-gray-500 text-gray-300 px-8 py-3 rounded-lg font-medium text-lg transition-colors"
+            >
+              View Source
+            </a>
+          </div>
+
+          {/* Stats bar */}
+          <div className="flex flex-wrap justify-center gap-8 md:gap-16 text-center">
+            {[
+              { value: '5', label: 'Input Methods' },
+              { value: '2', label: 'Languages' },
+              { value: '< 3s', label: 'Generation Time' },
+              { value: '310+', label: 'Tests Passing' },
+            ].map(({ value, label }) => (
+              <div key={label}>
+                <div className="text-2xl md:text-3xl font-bold text-white">{value}</div>
+                <div className="text-sm text-gray-500">{label}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -139,6 +159,38 @@ export default function HomePage() {
             <div className="text-green-400 mb-1">✅ Generated 6 files in ./mcp-server/</div>
             <div className="text-green-400">   24 MCP tools created</div>
           </div>
+        </div>
+      </section>
+
+      {/* Use Cases */}
+      <section className="py-16 border-t border-gray-800">
+        <h2 className="text-3xl font-bold text-center mb-4">Built for Every Workflow</h2>
+        <p className="text-gray-400 text-center mb-12 max-w-2xl mx-auto">
+          Whether you&apos;re building AI agents, automating workflows, or creating custom integrations — MCPForge gets you there faster.
+        </p>
+        <div className="grid md:grid-cols-3 gap-6">
+          {[
+            {
+              title: 'AI Agent Builders',
+              desc: 'Give Claude, GPT, or any MCP-compatible agent access to real-world APIs. Generate servers for Stripe, GitHub, Slack — any API your agent needs.',
+              gradient: 'from-purple-500/20 to-blue-500/20',
+            },
+            {
+              title: 'API Integrators',
+              desc: 'Compose multiple APIs into one MCP server. Weather + Calendar + Email in a single tool. No more juggling SDKs.',
+              gradient: 'from-blue-500/20 to-cyan-500/20',
+            },
+            {
+              title: 'Internal Tools',
+              desc: 'Point at your company\'s internal API docs. MCPForge crawls them, generates the server, and your team gets AI-powered access in minutes.',
+              gradient: 'from-cyan-500/20 to-green-500/20',
+            },
+          ].map(({ title, desc, gradient }) => (
+            <div key={title} className={`rounded-xl p-6 border border-gray-800 bg-gradient-to-br ${gradient}`}>
+              <h3 className="text-lg font-semibold mb-3">{title}</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">{desc}</p>
+            </div>
+          ))}
         </div>
       </section>
 

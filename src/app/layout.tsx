@@ -3,10 +3,54 @@ import './globals.css';
 import { SessionProvider } from '@/components/SessionProvider';
 import { AuthButton } from '@/components/AuthButton';
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://mcpforge.dev';
+
 export const metadata: Metadata = {
-  title: 'MCPForge — Turn Any API into an MCP Server',
-  description: 'Upload an OpenAPI spec, get a production-ready MCP server. TypeScript or Python. Download or deploy in one click.',
-  keywords: ['MCP', 'Model Context Protocol', 'API', 'OpenAPI', 'AI tools', 'code generator'],
+  title: {
+    default: 'MCPForge — Turn Any API into an MCP Server',
+    template: '%s | MCPForge',
+  },
+  description: 'Generate production-ready MCP servers from OpenAPI specs, plain English, or API docs. TypeScript or Python. Open source, free to use.',
+  keywords: ['MCP', 'Model Context Protocol', 'API', 'OpenAPI', 'AI tools', 'code generator', 'Claude', 'AI agent', 'MCP server', 'API to MCP'],
+  authors: [{ name: 'Claudius Inc.' }],
+  creator: 'Claudius Inc.',
+  metadataBase: new URL(SITE_URL),
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: SITE_URL,
+    siteName: 'MCPForge',
+    title: 'MCPForge — Turn Any API into an MCP Server',
+    description: 'Generate production-ready MCP servers from OpenAPI specs, plain English, or API docs. Open source. TypeScript or Python.',
+    images: [
+      {
+        url: '/api/og',
+        width: 1200,
+        height: 630,
+        alt: 'MCPForge — Turn Any API into an MCP Server',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'MCPForge — Turn Any API into an MCP Server',
+    description: 'Generate production-ready MCP servers from OpenAPI specs, plain English, or API docs. Open source.',
+    images: ['/api/og'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  alternates: {
+    canonical: SITE_URL,
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
