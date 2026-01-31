@@ -24,7 +24,7 @@
 - [x] Plain English → MCP server (describe what you want, AI generates the spec + server)
 - [x] API documentation crawler (point at docs URL → auto-extract endpoints → generate) — HTML extraction, SSRF protection, AI spec generation, auto-detect raw specs
 - [x] Multi-API composition (combine multiple APIs into one MCP server) — composer library, /api/compose endpoint, ComposeMultiple UI, per-API prefixing, 19 tests
-- [ ] Version management (update API spec → regenerate server, zero-downtime)
+- [x] Version management — spec differ, compareVersions E2E, /api/version endpoint (diff + download modes), VersionManager UI component, MIGRATION.md auto-generation, backwards-compatibility detection, 23 tests
 
 ## Phase 4: Monetization
 - [ ] GitHub OAuth login

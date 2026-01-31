@@ -71,6 +71,7 @@ export default function HomePage() {
             { emoji: '⚡', title: 'Instant Generation', desc: 'From spec to runnable MCP server in under 3 seconds.' },
             { emoji: '🔐', title: 'Auth Handling', desc: 'Automatically maps API key, Bearer token, and OAuth2 to environment variables.' },
             { emoji: '📦', title: 'Complete Package', desc: 'package.json, tsconfig, Dockerfile, .env.example, README — everything you need.' },
+            { emoji: '🔄', title: 'Version Management', desc: 'API updated? Diff old vs. new spec, see what changed, and download an updated server with migration guide.' },
             { emoji: '🐍', title: 'TypeScript + Python', desc: 'Choose your target. Both use official MCP SDKs and follow best practices.' },
             { emoji: '🎯', title: 'Smart Tool Naming', desc: 'Generates clear, descriptive tool names from operationIds or path patterns.' },
             { emoji: '🔓', title: 'Open Source', desc: 'MIT licensed. Fork it, self-host it, extend it. No vendor lock-in.' },

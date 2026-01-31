@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react';
 import { ToolPlayground, type PlaygroundTool } from '@/components/ToolPlayground';
 import { ComposeMultiple } from '@/components/ComposeMultiple';
+import VersionManager from '@/components/VersionManager';
 
 interface ToolHandlerInfo {
   method: string;
@@ -45,7 +46,7 @@ interface ServerInfo {
 
 type Target = 'typescript' | 'python';
 type Step = 'input' | 'preview' | 'generating';
-type InputMode = 'spec' | 'describe' | 'crawl' | 'compose';
+type InputMode = 'spec' | 'describe' | 'crawl' | 'compose' | 'version';
 
 const EXAMPLE_PROMPTS = [
   'A weather API that can get current weather and 5-day forecast for any city, with temperature in Celsius or Fahrenheit',
@@ -340,6 +341,16 @@ export default function GeneratePage() {
             >
               🔀 Compose Multiple
             </button>
+            <button
+              onClick={() => { setInputMode('version'); setError(null); }}
+              className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors -mb-px ${
+                inputMode === 'version'
+                  ? 'border-forge-500 text-forge-300'
+                  : 'border-transparent text-gray-500 hover:text-gray-300'
+              }`}
+            >
+              🔄 Update Version
+            </button>
           </div>
 
           {/* Spec upload mode */}
@@ -613,6 +624,18 @@ I want an MCP server that connects to a project management API. It should be abl
                   {' '}Requires <code className="text-gray-400">OPENAI_API_KEY</code> on the server.
                 </p>
               </div>
+            </div>
+          )}
+
+          {/* Version update mode */}
+          {inputMode === 'version' && (
+            <div>
+              <div className="mb-4">
+                <p className="text-sm text-gray-400 mb-4">
+                  API updated? Upload the old and new specs to see what changed, then download an updated MCP server with a migration guide.
+                </p>
+              </div>
+              <VersionManager />
             </div>
           )}
 
