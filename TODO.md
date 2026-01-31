@@ -23,7 +23,7 @@
 - [x] Tool testing playground (call tools directly in browser) — server-side proxy, dynamic forms, cURL preview, response viewer
 - [x] Plain English → MCP server (describe what you want, AI generates the spec + server)
 - [x] API documentation crawler (point at docs URL → auto-extract endpoints → generate) — HTML extraction, SSRF protection, AI spec generation, auto-detect raw specs
-- [ ] Multi-API composition (combine multiple APIs into one MCP server)
+- [x] Multi-API composition (combine multiple APIs into one MCP server) — composer library, /api/compose endpoint, ComposeMultiple UI, per-API prefixing, 19 tests
 - [ ] Version management (update API spec → regenerate server, zero-downtime)
 
 ## Phase 4: Monetization
