@@ -135,6 +135,19 @@ CREATE TABLE IF NOT EXISTS server_versions (
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+-- Compute usage tracking (server uptime for billing)
+CREATE TABLE IF NOT EXISTS compute_usage (
+  id TEXT PRIMARY KEY,
+  server_id TEXT NOT NULL REFERENCES servers(id) ON DELETE CASCADE,
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  start_time TEXT NOT NULL,
+  end_time TEXT NOT NULL,
+  minutes INTEGER NOT NULL DEFAULT 0,
+  billed INTEGER NOT NULL DEFAULT 0,
+  stripe_usage_record_id TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
 CREATE INDEX IF NOT EXISTS idx_generations_user ON generations(user_id);
 CREATE INDEX IF NOT EXISTS idx_generations_anon ON generations(anonymous_id);
 CREATE INDEX IF NOT EXISTS idx_generations_created ON generations(created_at);
@@ -149,4 +162,7 @@ CREATE INDEX IF NOT EXISTS idx_server_logs_created ON server_logs(created_at);
 CREATE INDEX IF NOT EXISTS idx_server_analytics_server ON server_analytics(server_id);
 CREATE INDEX IF NOT EXISTS idx_server_analytics_created ON server_analytics(created_at);
 CREATE INDEX IF NOT EXISTS idx_server_versions_server ON server_versions(server_id);
+CREATE INDEX IF NOT EXISTS idx_compute_usage_user ON compute_usage(user_id);
+CREATE INDEX IF NOT EXISTS idx_compute_usage_server ON compute_usage(server_id);
+CREATE INDEX IF NOT EXISTS idx_compute_usage_period ON compute_usage(start_time, end_time);
 `;
