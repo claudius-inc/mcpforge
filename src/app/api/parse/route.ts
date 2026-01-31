@@ -47,6 +47,26 @@ export async function POST(req: NextRequest) {
         inputSchema: t.inputSchema,
         source: t.source,
         enabled: t.enabled,
+        handler: {
+          method: t.handler.method,
+          path: t.handler.path,
+          baseUrl: t.handler.baseUrl,
+          contentType: t.handler.contentType,
+          pathParams: t.handler.pathParams,
+          queryParams: t.handler.queryParams,
+          headerParams: t.handler.headerParams,
+          bodyParam: t.handler.bodyParam,
+          auth: t.handler.auth.map(a => ({
+            scheme: {
+              type: a.scheme.type,
+              scheme: a.scheme.scheme,
+              paramName: a.scheme.paramName,
+              in: a.scheme.in,
+              name: a.scheme.name,
+            },
+            envVar: a.envVar,
+          })),
+        },
       })),
       warnings: parseResult.warnings,
     });

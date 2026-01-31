@@ -1,12 +1,35 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { ToolPlayground, type PlaygroundTool } from '@/components/ToolPlayground';
+
+interface ToolHandlerInfo {
+  method: string;
+  path: string;
+  baseUrl: string;
+  contentType: string;
+  pathParams: string[];
+  queryParams: string[];
+  headerParams: string[];
+  bodyParam?: string;
+  auth: Array<{
+    scheme: {
+      type: string;
+      scheme?: string;
+      paramName?: string;
+      in?: string;
+      name: string;
+    };
+    envVar: string;
+  }>;
+}
 
 interface ParsedTool {
   name: string;
   description: string;
-  inputSchema: { properties: Record<string, unknown>; required: string[] };
+  inputSchema: { type: string; properties: Record<string, unknown>; required: string[] };
   source: { path: string; method: string };
+  handler: ToolHandlerInfo;
   enabled: boolean;
 }
 
@@ -31,6 +54,7 @@ export default function GeneratePage() {
   const [warnings, setWarnings] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [parsing, setParsing] = useState(false);
+  const [playgroundTool, setPlaygroundTool] = useState<PlaygroundTool | null>(null);
 
   const handleParse = useCallback(async () => {
     if (!specInput.trim()) {
@@ -115,6 +139,10 @@ export default function GeneratePage() {
     const reader = new FileReader();
     reader.onload = () => setSpecInput(reader.result as string);
     reader.readAsText(file);
+  };
+
+  const openPlayground = (tool: ParsedTool) => {
+    setPlaygroundTool(tool as unknown as PlaygroundTool);
   };
 
   return (
@@ -232,7 +260,10 @@ export default function GeneratePage() {
           )}
 
           {/* Tool list */}
-          <h3 className="text-lg font-semibold mb-3">MCP Tools</h3>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-semibold">MCP Tools</h3>
+            <span className="text-xs text-gray-500">Click ▶ to test any tool live</span>
+          </div>
           <div className="space-y-2 mb-8">
             {tools.map((tool, idx) => (
               <div
@@ -245,7 +276,7 @@ export default function GeneratePage() {
               >
                 <button
                   onClick={() => toggleTool(idx)}
-                  className={`w-5 h-5 rounded flex items-center justify-center text-xs font-bold transition-colors ${
+                  className={`w-5 h-5 rounded flex items-center justify-center text-xs font-bold transition-colors flex-shrink-0 ${
                     tool.enabled ? 'bg-forge-600 text-white' : 'bg-gray-800 text-gray-600'
                   }`}
                 >
@@ -261,8 +292,19 @@ export default function GeneratePage() {
                   <p className="text-sm text-gray-400 truncate">{tool.description}</p>
                   <p className="text-xs text-gray-600 font-mono mt-1">{tool.source.path}</p>
                 </div>
-                <div className="text-xs text-gray-500">
-                  {Object.keys(tool.inputSchema.properties).length} params
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  <span className="text-xs text-gray-500">
+                    {Object.keys(tool.inputSchema.properties).length} params
+                  </span>
+                  {tool.enabled && (
+                    <button
+                      onClick={() => openPlayground(tool)}
+                      className="text-xs px-2.5 py-1 rounded-md bg-forge-950 text-forge-400 hover:bg-forge-900 hover:text-forge-300 border border-forge-800/50 transition-colors"
+                      title="Test this tool"
+                    >
+                      ▶ Test
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
@@ -309,6 +351,14 @@ export default function GeneratePage() {
           <p className="text-lg text-gray-300">Generating your MCP server...</p>
           <p className="text-sm text-gray-500 mt-2">This takes about 1-2 seconds</p>
         </div>
+      )}
+
+      {/* Playground Modal */}
+      {playgroundTool && (
+        <ToolPlayground
+          tool={playgroundTool}
+          onClose={() => setPlaygroundTool(null)}
+        />
       )}
     </div>
   );
