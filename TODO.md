@@ -43,3 +43,13 @@
 - [x] GitHub integration (commit generated servers to repo) — /api/github/push endpoint, creates/pushes repos using user's OAuth token
 - [x] CLI tool: `mcpforge generate openapi.yaml` (local generation) — full CLI with generate/describe/search/info commands, local + API fallback
 - [x] VS Code extension — generate from spec, describe, registry search, CodeLens for OpenAPI files
+
+## Phase 6: Polish & Launch
+- [x] Enhanced SEO metadata — OG/Twitter cards, canonical URL, robots directives, template-based titles
+- [x] OG image API route (/api/og) — edge runtime, dynamic title/subtitle, gradient design with branding
+- [x] Landing page polish — hero gradient glow, stats bar, "Built for Every Workflow" use cases section
+- [x] Seed registry data — 10 curated OpenAPI specs (OpenWeather, GitHub, Stripe, HN, JSONPlaceholder, NASA, ExchangeRate, NewsAPI, Spotify, SendGrid), 44 tools, 5 featured
+- [x] Launch content — Reddit r/SideProject, r/webdev, Product Hunt, Show HN posts (written Phase 5)
+- [ ] Deploy to production (Vercel + Turso + Stripe) — **blocked on external accounts**
+- [ ] Set up production analytics and monitoring
+- [ ] Cloud deployment providers (Fly.io/Railway) — needs external accounts
