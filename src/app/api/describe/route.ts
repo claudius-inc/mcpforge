@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateSpecFromDescription, validateDescription } from '@/lib/ai';
+import { getSession, getMonthlyUsage, checkLimit, trackGeneration } from '@/lib/auth';
 
 /**
  * POST /api/describe
@@ -9,6 +10,22 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { description } = body;
+
+    // Tier enforcement
+    const session = await getSession();
+    const userId = session?.id || null;
+    const tier = session?.tier || 'free';
+
+    if (userId) {
+      const usage = await getMonthlyUsage(userId, 'describe');
+      const limitCheck = checkLimit(tier, 'aiDescribesPerMonth', usage);
+      if (!limitCheck.allowed) {
+        return NextResponse.json(
+          { error: `Monthly AI describe limit reached (${limitCheck.limit}). Upgrade for more.`, upgrade: true },
+          { status: 429 }
+        );
+      }
+    }
 
     if (!description || typeof description !== 'string') {
       return NextResponse.json(
@@ -34,6 +51,11 @@ export async function POST(req: NextRequest) {
         { error: result.error },
         { status: result.error?.includes('API key') ? 503 : 422 }
       );
+    }
+
+    // Track usage
+    if (userId) {
+      await trackGeneration(userId, null, 'describe', description.slice(0, 100), 0, 'openapi');
     }
 
     return NextResponse.json({

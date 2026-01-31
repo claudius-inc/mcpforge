@@ -4,18 +4,11 @@ import type { APISource } from '@/lib/composer';
 import { generateTypeScriptServer } from '@/lib/generator/typescript';
 import { generatePythonServer } from '@/lib/generator/python';
 import { createZipBundle } from '@/lib/output/zip-bundle';
+import { getSession, getMonthlyUsage, checkLimit, trackGeneration } from '@/lib/auth';
 
 /**
  * POST /api/compose
  * Combine multiple OpenAPI specs into a single MCP server.
- *
- * Body: {
- *   apis: [{ name: string, spec: string, prefix?: string, disabledTools?: string[] }],
- *   serverName?: string,
- *   serverDescription?: string,
- *   target?: "typescript" | "python",
- *   mode?: "preview" | "download"  // preview returns tool list, download returns ZIP
- * }
  */
 export async function POST(req: NextRequest) {
   try {
@@ -27,6 +20,22 @@ export async function POST(req: NextRequest) {
       target = 'typescript',
       mode = 'preview',
     } = body;
+
+    // Tier enforcement
+    const session = await getSession();
+    const userId = session?.id || null;
+    const tier = session?.tier || 'free';
+
+    if (userId && mode === 'download') {
+      const usage = await getMonthlyUsage(userId, 'compose');
+      const limitCheck = checkLimit(tier, 'compositionsPerMonth', usage);
+      if (!limitCheck.allowed) {
+        return NextResponse.json(
+          { error: `Monthly composition limit reached (${limitCheck.limit}). Upgrade for more.`, upgrade: true },
+          { status: 429 }
+        );
+      }
+    }
 
     // Validate
     if (!Array.isArray(apis) || apis.length === 0) {
@@ -115,6 +124,11 @@ export async function POST(req: NextRequest) {
 
     const folderName = `mcp-${config.name}`;
     const zipBuffer = await createZipBundle(files, folderName);
+
+    // Track composition
+    if (userId) {
+      await trackGeneration(userId, null, 'compose', config.name, config.tools.length, target);
+    }
 
     return new NextResponse(new Uint8Array(zipBuffer), {
       status: 200,

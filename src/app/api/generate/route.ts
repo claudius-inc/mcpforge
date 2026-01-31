@@ -4,6 +4,7 @@ import { mapSpecToMCPServer } from '@/lib/mapper';
 import { generateTypeScriptServer } from '@/lib/generator/typescript';
 import { generatePythonServer } from '@/lib/generator/python';
 import { createZipBundle } from '@/lib/output/zip-bundle';
+import { getSession, getMonthlyUsage, checkLimit, trackGeneration } from '@/lib/auth';
 
 /**
  * POST /api/generate
@@ -14,6 +15,22 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { spec: rawSpec, target = 'typescript', disabledTools = [] } = body;
+
+    // Tier enforcement (anonymous users get free limits)
+    const session = await getSession();
+    const userId = session?.id || null;
+    const tier = session?.tier || 'free';
+
+    if (userId) {
+      const usage = await getMonthlyUsage(userId, 'generate');
+      const limitCheck = checkLimit(tier, 'generationsPerMonth', usage);
+      if (!limitCheck.allowed) {
+        return NextResponse.json(
+          { error: `Monthly generation limit reached (${limitCheck.limit}). Upgrade for more.`, upgrade: true },
+          { status: 429 }
+        );
+      }
+    }
 
     if (!rawSpec || typeof rawSpec !== 'string') {
       return NextResponse.json(
@@ -58,6 +75,16 @@ export async function POST(req: NextRequest) {
     // Bundle as ZIP
     const folderName = `mcp-${serverConfig.name}`;
     const zipBuffer = await createZipBundle(files, folderName);
+
+    // Track generation
+    await trackGeneration(
+      userId,
+      userId ? null : req.headers.get('x-forwarded-for') || 'anon',
+      'generate',
+      serverConfig.name,
+      serverConfig.tools.filter(t => t.enabled !== false).length,
+      target
+    );
 
     // Return ZIP (convert Buffer to Uint8Array for NextResponse compat)
     return new NextResponse(new Uint8Array(zipBuffer), {
