@@ -22,7 +22,7 @@
 ## Phase 3: Smart Features
 - [x] Tool testing playground (call tools directly in browser) — server-side proxy, dynamic forms, cURL preview, response viewer
 - [x] Plain English → MCP server (describe what you want, AI generates the spec + server)
-- [ ] API documentation crawler (point at docs URL → auto-extract endpoints → generate)
+- [x] API documentation crawler (point at docs URL → auto-extract endpoints → generate) — HTML extraction, SSRF protection, AI spec generation, auto-detect raw specs
 - [ ] Multi-API composition (combine multiple APIs into one MCP server)
 - [ ] Version management (update API spec → regenerate server, zero-downtime)
 
