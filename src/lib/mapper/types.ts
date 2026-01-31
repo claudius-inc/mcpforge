@@ -34,6 +34,7 @@ export interface ToolHandler {
   method: string;
   path: string;          // with {param} placeholders
   baseUrl: string;
+  baseUrlEnvVar?: string; // defaults to API_BASE_URL; composer sets per-API vars
   contentType: string;
   pathParams: string[];
   queryParams: string[];

@@ -172,7 +172,8 @@ function generateHandlerBody(tool: MCPTool): string {
     )}\``;
   }
 
-  lines.push(`      const baseUrl = process.env.API_BASE_URL || '${escapeStr(h.baseUrl)}';`);
+  const envVarName = h.baseUrlEnvVar || 'API_BASE_URL';
+  lines.push(`      const baseUrl = process.env.${envVarName} || '${escapeStr(h.baseUrl)}';`);
   lines.push(`      const url = ${urlExpr};`);
 
   // Query params

@@ -59,7 +59,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-BASE_URL = os.getenv("API_BASE_URL", "${escapePy(config.baseUrl)}")
+${generatePyBaseUrls(config)}
 
 mcp = FastMCP("${escapePy(config.name)}")
 
@@ -110,14 +110,37 @@ function mapToPyType(prop: { type: string }): string {
   }
 }
 
+function generatePyBaseUrls(config: MCPServerConfig): string {
+  // Collect unique base URL env vars
+  const seen = new Set<string>();
+  const lines: string[] = [];
+
+  for (const tool of config.tools) {
+    const envVar = tool.handler.baseUrlEnvVar || 'API_BASE_URL';
+    if (!seen.has(envVar)) {
+      seen.add(envVar);
+      const varName = envVar.replace(/[^A-Z0-9_]/g, '_');
+      lines.push(`${varName} = os.getenv("${envVar}", "${escapePy(tool.handler.baseUrl)}")`);
+    }
+  }
+
+  // Fallback if no tools
+  if (lines.length === 0) {
+    lines.push(`BASE_URL = os.getenv("API_BASE_URL", "${escapePy(config.baseUrl)}")`);
+  }
+
+  return lines.join('\n');
+}
+
 function generatePyHandlerBody(tool: MCPTool): string {
   const h = tool.handler;
   const lines: string[] = [];
 
-  // Build URL
-  let urlExpr = `f"{BASE_URL}${h.path}"`;
+  // Build URL using per-tool base URL env var
+  const baseUrlVar = (h.baseUrlEnvVar || 'API_BASE_URL').replace(/[^A-Z0-9_]/g, '_');
+  let urlExpr = `f"{${baseUrlVar}}${h.path}"`;
   if (h.pathParams.length > 0) {
-    urlExpr = `f"{BASE_URL}${h.path.replace(/\{([^}]+)\}/g, (_, name) => `{${name}}`)}"`;
+    urlExpr = `f"{${baseUrlVar}}${h.path.replace(/\{([^}]+)\}/g, (_, name) => `{${name}}`)}"`;
   }
   lines.push(`    url = ${urlExpr}`);
 

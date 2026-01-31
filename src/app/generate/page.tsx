@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { ToolPlayground, type PlaygroundTool } from '@/components/ToolPlayground';
+import { ComposeMultiple } from '@/components/ComposeMultiple';
 
 interface ToolHandlerInfo {
   method: string;
@@ -44,7 +45,7 @@ interface ServerInfo {
 
 type Target = 'typescript' | 'python';
 type Step = 'input' | 'preview' | 'generating';
-type InputMode = 'spec' | 'describe' | 'crawl';
+type InputMode = 'spec' | 'describe' | 'crawl' | 'compose';
 
 const EXAMPLE_PROMPTS = [
   'A weather API that can get current weather and 5-day forecast for any city, with temperature in Celsius or Fahrenheit',
@@ -72,6 +73,8 @@ export default function GeneratePage() {
   const [crawlPageTitle, setCrawlPageTitle] = useState<string | null>(null);
   const [aiModel, setAiModel] = useState<string | null>(null);
   const [playgroundTool, setPlaygroundTool] = useState<PlaygroundTool | null>(null);
+  const [composeApis, setComposeApis] = useState<Array<{ name: string; spec: string }>>([]);
+  const [composeServerName, setComposeServerName] = useState('');
 
   const handleParse = useCallback(async (specToParse?: string) => {
     const spec = specToParse || specInput;
@@ -223,6 +226,46 @@ export default function GeneratePage() {
     }
   }, [specInput, target, tools, serverInfo]);
 
+  const handleComposeDownload = useCallback(async () => {
+    setStep('generating');
+    setError(null);
+
+    try {
+      const res = await fetch('/api/compose', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          apis: composeApis.map(a => ({ name: a.name, spec: a.spec })),
+          serverName: composeServerName || undefined,
+          target,
+          mode: 'download',
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error || 'Generation failed');
+        setStep('preview');
+        return;
+      }
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `mcp-${serverInfo?.name || 'composed-server'}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      setStep('preview');
+    } catch (e) {
+      setError(`Network error: ${(e as Error).message}`);
+      setStep('preview');
+    }
+  }, [composeApis, composeServerName, target, serverInfo]);
+
   const toggleTool = (index: number) => {
     setTools(prev => prev.map((t, i) => i === index ? { ...t, enabled: !t.enabled } : t));
   };
@@ -286,6 +329,16 @@ export default function GeneratePage() {
               }`}
             >
               🔗 Import from Docs
+            </button>
+            <button
+              onClick={() => { setInputMode('compose'); setError(null); }}
+              className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors -mb-px ${
+                inputMode === 'compose'
+                  ? 'border-forge-500 text-forge-300'
+                  : 'border-transparent text-gray-500 hover:text-gray-300'
+              }`}
+            >
+              🔀 Compose Multiple
             </button>
           </div>
 
@@ -562,12 +615,53 @@ I want an MCP server that connects to a project management API. It should be abl
               </div>
             </div>
           )}
+
+          {/* Compose multiple mode */}
+          {inputMode === 'compose' && (
+            <ComposeMultiple
+              target={target}
+              onComposed={(data) => {
+                setServerInfo(data.server as ServerInfo);
+                setTools(data.tools.map(t => ({
+                  ...t,
+                  handler: {
+                    ...t.handler,
+                    contentType: 'application/json',
+                    pathParams: [],
+                    queryParams: [],
+                    headerParams: [],
+                    auth: [],
+                  },
+                })));
+                setWarnings(data.warnings || []);
+                setComposeApis(data.apis.map((a: { name: string; spec?: string }) => ({
+                  name: a.name,
+                  spec: (a as { spec?: string }).spec || '',
+                })));
+                setComposeServerName(data.serverName);
+                setAiModel(null);
+                setCrawlPageTitle(null);
+                setStep('preview');
+              }}
+              onError={setError}
+            />
+          )}
         </div>
       )}
 
       {/* Step 2: Preview */}
       {step === 'preview' && serverInfo && (
         <div>
+          {/* Composed server notice */}
+          {composeApis.length > 0 && (
+            <div className="bg-purple-950/50 border border-purple-800/50 rounded-lg p-3 mb-4 flex items-center gap-3">
+              <span className="text-purple-400">🔀</span>
+              <span className="text-sm text-purple-300">
+                Composed from {composeApis.length} APIs: {composeApis.map(a => a.name).join(', ')}. Review the combined tools below.
+              </span>
+            </div>
+          )}
+
           {/* AI generation notice */}
           {aiModel && (
             <div className="bg-forge-950/50 border border-forge-800/50 rounded-lg p-3 mb-4 flex items-center gap-3">
@@ -691,13 +785,13 @@ I want an MCP server that connects to a project management API. It should be abl
           {/* Actions */}
           <div className="flex gap-4">
             <button
-              onClick={handleGenerate}
+              onClick={composeApis.length > 0 ? handleComposeDownload : handleGenerate}
               className="bg-forge-600 hover:bg-forge-500 text-white px-6 py-2.5 rounded-lg font-medium transition-colors"
             >
               ⚡ Download {target === 'typescript' ? 'TypeScript' : 'Python'} Server
             </button>
             <button
-              onClick={() => { setStep('input'); setTools([]); setServerInfo(null); setAiModel(null); setCrawlPageTitle(null); }}
+              onClick={() => { setStep('input'); setTools([]); setServerInfo(null); setAiModel(null); setCrawlPageTitle(null); setComposeApis([]); }}
               className="border border-gray-700 hover:border-gray-500 text-gray-300 px-6 py-2.5 rounded-lg transition-colors"
             >
               ← Back

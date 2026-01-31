@@ -13,8 +13,8 @@ export default function HomePage() {
           </span>
         </h1>
         <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-10">
-          Describe what you want in plain English, upload an OpenAPI spec, or
-          point at any API docs page. Get a production-ready MCP server in TypeScript or Python — in seconds.
+          Describe what you want in plain English, upload an OpenAPI spec, crawl any API docs page, or 
+          compose multiple APIs into one. Get a production-ready MCP server in TypeScript or Python — in seconds.
         </p>
         <div className="flex gap-4 justify-center">
           <a
@@ -67,6 +67,7 @@ export default function HomePage() {
           {[
             { emoji: '✨', title: 'Plain English Input', desc: 'Describe what you want and AI generates the spec. No OpenAPI knowledge needed.' },
             { emoji: '🔗', title: 'Docs Crawler', desc: 'Point at any API documentation page. AI extracts endpoints, parameters, and auth — no manual spec writing.' },
+            { emoji: '🔀', title: 'Multi-API Composition', desc: 'Combine multiple APIs into one MCP server. Weather + Calendar + GitHub → one unified tool set.' },
             { emoji: '⚡', title: 'Instant Generation', desc: 'From spec to runnable MCP server in under 3 seconds.' },
             { emoji: '🔐', title: 'Auth Handling', desc: 'Automatically maps API key, Bearer token, and OAuth2 to environment variables.' },
             { emoji: '📦', title: 'Complete Package', desc: 'package.json, tsconfig, Dockerfile, .env.example, README — everything you need.' },
