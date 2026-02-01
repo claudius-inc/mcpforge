@@ -201,7 +201,7 @@ export async function crawlDocsToSpec(options: CrawlOptions): Promise<CrawlResul
     additionalContext,
     apiKey = process.env.OPENAI_API_KEY,
     baseUrl = process.env.OPENAI_BASE_URL || undefined,
-    model = process.env.MCPFORGE_AI_MODEL || 'gemini-2.0-flash',
+    model = process.env.MCPFORGE_AI_MODEL || 'gemini-3.0-flash',
   } = options;
 
   if (!apiKey) {
