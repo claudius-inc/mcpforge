@@ -52,5 +52,5 @@
 - [x] Launch content — Reddit r/SideProject, r/webdev, Product Hunt, Show HN posts (written Phase 5)
 - [x] Deploy to production (Vercel + Turso + Stripe) — ✅ LIVE
 - [x] /api/health endpoint — DB connectivity, env validation, uptime/latency reporting
-- [ ] Set up production analytics and monitoring
+- [x] Set up production analytics and monitoring (Vercel Analytics + Speed Insights)
 - [ ] Cloud deployment providers (Fly.io/Railway) — needs external accounts
