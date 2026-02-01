@@ -50,6 +50,7 @@
 - [x] Landing page polish — hero gradient glow, stats bar, "Built for Every Workflow" use cases section
 - [x] Seed registry data — 10 curated OpenAPI specs (OpenWeather, GitHub, Stripe, HN, JSONPlaceholder, NASA, ExchangeRate, NewsAPI, Spotify, SendGrid), 44 tools, 5 featured
 - [x] Launch content — Reddit r/SideProject, r/webdev, Product Hunt, Show HN posts (written Phase 5)
-- [ ] Deploy to production (Vercel + Turso + Stripe) — **blocked on external accounts**
+- [x] Deploy to production (Vercel + Turso + Stripe) — ✅ LIVE
+- [x] /api/health endpoint — DB connectivity, env validation, uptime/latency reporting
 - [ ] Set up production analytics and monitoring
 - [ ] Cloud deployment providers (Fly.io/Railway) — needs external accounts
