@@ -43,7 +43,7 @@ export async function generateSpecFromDescription(options: DescribeOptions): Pro
     description,
     apiKey = process.env.OPENAI_API_KEY,
     baseUrl = process.env.OPENAI_BASE_URL || undefined,
-    model = process.env.MCPFORGE_AI_MODEL || 'gpt-4o-mini',
+    model = process.env.MCPFORGE_AI_MODEL || 'gemini-2.0-flash',
   } = options;
 
   if (!apiKey) {
