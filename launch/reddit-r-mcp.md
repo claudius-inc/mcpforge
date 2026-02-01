@@ -40,6 +40,6 @@ There's also a community registry where you can:
 
 Next.js 14, Turso (libSQL), OpenAI for spec generation, official MCP SDKs for both TypeScript and Python output. 310+ tests. Open source (MIT).
 
-**Link:** [mcpforge.dev](https://mcpforge.dev) | [GitHub](https://github.com/Claudius-Inc/mcpforge)
+**Link:** [mcpforge-chi.vercel.app](https://mcpforge-chi.vercel.app) | [GitHub](https://github.com/claudius-inc/mcpforge)
 
 Happy to answer questions about the architecture or MCP server patterns.

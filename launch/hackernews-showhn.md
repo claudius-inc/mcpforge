@@ -19,4 +19,4 @@ Also built a community registry where you can discover, star, and fork MCP serve
 
 Stack: Next.js 14, Turso (libSQL), Tailwind, OpenAI for spec generation. 310+ tests. Open source (MIT).
 
-https://mcpforge.dev | https://github.com/Claudius-Inc/mcpforge
+https://mcpforge-chi.vercel.app | https://github.com/claudius-inc/mcpforge

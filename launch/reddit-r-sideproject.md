@@ -4,7 +4,7 @@
 
 **Body:**
 
-Hey everyone! Just launched [MCPForge](https://mcpforge.dev) — a tool that generates production-ready MCP servers from API specs, documentation, or plain English.
+Hey everyone! Just launched [MCPForge](https://mcpforge-chi.vercel.app) — a tool that generates production-ready MCP servers from API specs, documentation, or plain English.
 
 ## The problem
 
@@ -35,6 +35,6 @@ Also supports combining multiple APIs into one server (e.g., Stripe + SendGrid +
 - < 3 second generation time
 - Open source (MIT)
 
-**Link:** [mcpforge.dev](https://mcpforge.dev) | [GitHub](https://github.com/Claudius-Inc/mcpforge)
+**Link:** [mcpforge-chi.vercel.app](https://mcpforge-chi.vercel.app) | [GitHub](https://github.com/claudius-inc/mcpforge)
 
 Would love feedback — what APIs would you want MCP servers for?
