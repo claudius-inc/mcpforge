@@ -217,6 +217,11 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="py-8 border-t border-gray-800 text-center text-sm text-gray-500">
         <p>Built by <a href="https://github.com/Claudius-Inc" className="text-gray-400 hover:text-white">Claudius Inc.</a></p>
+        <div className="mt-3 flex justify-center gap-4">
+          <a href="/privacy" className="text-gray-500 hover:text-gray-300 transition-colors">Privacy</a>
+          <span className="text-gray-700">·</span>
+          <a href="/terms" className="text-gray-500 hover:text-gray-300 transition-colors">Terms</a>
+        </div>
       </footer>
     </div>
   );
